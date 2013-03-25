@@ -3,7 +3,7 @@
 import os
 
 
-PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 DATABASE_DIR = PROJECT_DIR
 
 DEBUG = True
