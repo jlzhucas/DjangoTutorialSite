@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -8-
 from django.conf.urls.defaults import patterns, url
+from mysite.apps.notes.views import AjaxCreateNoteView
+from mysite.apps.notes.views import AjaxSlugVerifyView
+from mysite.apps.notes.views import AjaxUpdateNoteView
+from mysite.apps.notes.views import CreateNoteView
 from mysite.apps.notes.views import NoteListView 
 from mysite.apps.notes.views import NoteDetailView 
-from mysite.apps.notes.views import CreateNoteView
 from mysite.apps.notes.views import UpdateNoteView
-from mysite.apps.notes.views import AjaxCreateNoteView
-from mysite.apps.notes.views import AjaxUpdateNoteView
 
 
 urlpatterns = patterns('',
@@ -18,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^ajax_create/$', AjaxCreateNoteView.as_view(), name="ajax_create_note"),
     url(r'^note/(?P<slug>[-\w]+)/ajax_update/$', AjaxUpdateNoteView.as_view(),
             name="ajax_update_note"),
+    url(r'ajax_slug_verify/$', AjaxSlugVerifyView.as_view())
 )
 
 

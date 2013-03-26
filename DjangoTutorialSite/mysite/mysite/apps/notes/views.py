@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.http import HttpResponseRedirect, HttpResponseServerError
-from django.views.generic import ListView
-from django.views.generic import DetailView 
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.views.generic import CreateView
+from django.views.generic import DetailView 
+from django.views.generic import ListView
 from django.views.generic import UpdateView
+from django.views.generic import View
 # from django.utils import simplejson
 
 from mysite.apps.notes.models import Note
@@ -30,8 +32,9 @@ class NoteDetailView(DetailView):
 class CreateNoteView(CreateView):
     ''' Create note page view. '''
 
-    http_method_names = [u'post', ]
+    http_method_names = ['post', ]
     
+    @login_required
     def post(self, request, *args, **kwargs):
         post_data = request.POST.copy()
         if post_data.has_key('slug') and post_data.has_key('title'):
@@ -51,8 +54,9 @@ class CreateNoteView(CreateView):
 class UpdateNoteView(UpdateView):
     ''' Update note page view. '''
 
-    http_method_names = [u'post', ]
+    http_method_names = ['post', ]
 
+    @login_required
     def post(self, request, *args, **kwargs):
         post_data = request.POST.copy()
         slug = kwargs.get('slug', '')
@@ -74,11 +78,12 @@ class UpdateNoteView(UpdateView):
         return HttpResponseRedirect(note.get_absolute_url())
 
 
-class AjaxCreateNoteView(CreateView, AjaxResponseMixin):
+class AjaxCreateNoteView(View, AjaxResponseMixin):
     ''' Ajax create note page view. '''
 
-    http_method_names = [u'post', ]
-    
+    http_method_names = ['post', ]
+
+    # @login_required
     def post(self, request, *args, **kwargs):
         context = {}
         post_data = request.POST.copy()
@@ -105,11 +110,12 @@ class AjaxCreateNoteView(CreateView, AjaxResponseMixin):
             context.update({'msg': u"Insufficient POST data"})
             return self.ajax_response(context)
 
-class AjaxUpdateNoteView(UpdateView, AjaxResponseMixin):
+class AjaxUpdateNoteView(View, AjaxResponseMixin):
     ''' Ajax update note page view. '''
 
-    http_method_names = [u'post', ]
+    http_method_names = ['post', ]
 
+    # @login_required
     def post(self, request, *args, **kwargs):
         context = {}
         post_data = request.POST.copy()
@@ -135,3 +141,19 @@ class AjaxUpdateNoteView(UpdateView, AjaxResponseMixin):
         note.save()
         context.update({'msg': 'Update successfully!'})
         return self.ajax_response(context)
+
+
+class AjaxSlugVerifyView(View):
+    ''' Ajax verify the slug. '''
+
+    http_method_names = ['get', ]
+
+    def get(self, request, *args, **kwargs):
+        get_data = request.GET.copy()
+        if get_data.has_key('slug'):
+            slug_str = get_data['slug']
+            try:
+                Note.objects.get(slug=slug_str)
+                return HttpResponseServerError(slug_str)
+            except Note.DoesNotExist:
+                return HttpResponse(slug_str)

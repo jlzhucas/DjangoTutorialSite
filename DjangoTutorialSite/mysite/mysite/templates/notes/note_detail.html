@@ -6,6 +6,7 @@
     <a href="/notes/">Back to Index</a>
 </div>
 <div class="detail">
+    {% if user.is_authenticated %}
     <form method="post" action="update/">
         <div class="text">
             <label for="title">Title</label>
@@ -16,7 +17,13 @@
         <textarea name="text" id="text">{{ note.text }}</textarea>
         <input class="submit" type="submit" value="Update Note">
     </form>
+    {% else %}
+    <span>Title: {{ note.title }}</span>
+    <span>Slug: {{ note.slug }}</span>
+    <p> {{ note.text }} </p>
+    {% endif %}
 </div>
+{% if user.is_authenticated %}
 <script>
 $(document).ready(function() {
     var history = { title: $("#title").val(), slug: $("#slug").val() };
@@ -88,6 +95,6 @@ $(document).ready(function() {
     $("#text").hover(function() {}, function() { perform_update("text", $("#text").val()); });
     $(".submit").remove()
 });
-
 </script>
+{% endif %}
 {% endblock %}

@@ -10,7 +10,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
-    # url(r'^mysite/', include('mysite.foo.urls')),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
     url(r'^polls/', include('mysite.apps.polls.urls')),
     url(r'^notes/', include('mysite.apps.notes.urls')),
 
