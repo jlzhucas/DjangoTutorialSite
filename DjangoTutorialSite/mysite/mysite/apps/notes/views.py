@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.views.generic import ListView
 from django.views.generic import DetailView 
 from django.views.generic import CreateView
 from django.views.generic import UpdateView
+from django.utils import simplejson as json
 
 from mysite.apps.notes.models import Note
 
@@ -28,7 +29,7 @@ class NoteDetailView(DetailView):
 class CreateNoteView(CreateView):
     ''' Create note page view. '''
 
-    # http_method_names = [u'post', ]
+    http_method_names = [u'post', ]
     
     def post(self, request, *args, **kwargs):
         post_data = request.POST.copy()
@@ -49,7 +50,7 @@ class CreateNoteView(CreateView):
 class UpdateNoteView(UpdateView):
     ''' Update note page view. '''
 
-    # http_method_names = [u'post', ]
+    http_method_names = [u'post', ]
 
     def post(self, request, *args, **kwargs):
         post_data = request.POST.copy()
@@ -60,8 +61,8 @@ class UpdateNoteView(UpdateView):
             if note.slug != slug_str:
                 try:
                     n = Note.objects.get(slug=slug_str)
-                    error_msg = u"Slug already taken. "
-                    return HttpResponseServerError(error_msg)
+                    response = {'msg': u"Slug already taken. ", 'slug': note.slug}
+                    return HttpResponse(json.dumps(response))
                 except Note.DoesNotExist:
                     note.slug = slug_str
         if post_data.has_key('title'):
@@ -69,7 +70,8 @@ class UpdateNoteView(UpdateView):
         if post_data.has_key('text'):
             note.text = post_data['text']
         note.save()
-        return HttpResponseRedirect(note.get_absolute_url())
+        response = {'msg': 'Update successfully!'}
+        return HttpResponse(json.dumps(response))
 
 
 
