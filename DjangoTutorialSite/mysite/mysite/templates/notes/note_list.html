@@ -3,12 +3,13 @@
 {% block content %}
 <div class="new">
     <h2>Create a new note.</h2>
-    <form method="post" action="create/">
+    <!-- <form method="post" action="create/"> -->
+    <form method="post" action="">
         <label for="title">Title</label>
         <input type="text" name="title" id="title">
         <label for="slug">Slug</label>
         <input type="text" name="slug" id="slug">
-        <input type="submit" value="Create Note">
+        <input type="submit" id="create" value="Create Note">
     </form>
 </div>
 <div class="list">
@@ -35,24 +36,18 @@
         }
         return false;
     };
-    var done = function(res, status){
-        if (status == "success")
+    var done = function(res, status) {
+        var txt = res.responseText;
+        var data = eval('('+txt+')');
+        if (status == "success") 
         {
-            var txt = res.responseText;
-            var titleStr = txt.match(/id="title" value="\w+"/ig)[0];
-            var slugStr = txt.match(/id="slug" value="\w+"/ig)[0];
-            var title = titleStr.match(/"\w+"/ig)[1].replace(/"/g, '');
-            var slug = slugStr.match(/"\w+"/ig)[1].replace(/"/g, '');
-            var newLine = $('<li><a href="note/"'+slug+'">'+title+'</a></li>');
-            $("#notes").prepend(newLine);
+            var newLi = $('<li><a href="'+data.url+'">'+data.title+'</a></li>');
+            $("#notes").prepend(newLi);
             $("#title").val("");
             $("#slug").val("");
         }
-        else
-        {
-            display_error(res.responseText, $(".new"));
-        }
-    };
+        else display_error(data.msg, $(".new"));
+    }
     $("#create").click(create_note)
 </script>
 {% endblock %}

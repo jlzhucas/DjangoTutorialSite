@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.views.generic import ListView
 from django.views.generic import DetailView 
 from django.views.generic import CreateView
 from django.views.generic import UpdateView
+# from django.utils import simplejson
 
 from mysite.apps.notes.models import Note
 from mysite.apps.utils.views import AjaxResponseMixin
@@ -79,20 +80,29 @@ class AjaxCreateNoteView(CreateView, AjaxResponseMixin):
     http_method_names = [u'post', ]
     
     def post(self, request, *args, **kwargs):
+        context = {}
         post_data = request.POST.copy()
         if post_data.has_key('slug') and post_data.has_key('title'):
             slug = post_data['slug']
             try:
                 note = Note.objects.get(slug=slug)
-                context = {'msg': u"Slug already taken. ", 'slug': note.slug}
+                context.update({
+                    'msg': u"Slug already taken. ", 
+                    'slug': note.slug
+                })
                 return self.ajax_response(context)
             except Note.DoesNotExist:
                 title = post_data['title']
                 note = Note.objects.create(title=title, slug=slug)
-                context = {'msg': u"Create note successfully!"}
+                context.update({
+                    'msg': u"Create note successfully!",
+                    'title': title,
+                    'slug': slug,
+                    'url': note.get_absolute_url()
+                })
                 return self.ajax_response(context)
         else:
-            context = {'msg': u"Insufficient POST data"}
+            context.update({'msg': u"Insufficient POST data"})
             return self.ajax_response(context)
 
 class AjaxUpdateNoteView(UpdateView, AjaxResponseMixin):
@@ -101,6 +111,7 @@ class AjaxUpdateNoteView(UpdateView, AjaxResponseMixin):
     http_method_names = [u'post', ]
 
     def post(self, request, *args, **kwargs):
+        context = {}
         post_data = request.POST.copy()
         slug = kwargs.get('slug', '')
         note = Note.objects.get(slug=slug)
@@ -109,14 +120,18 @@ class AjaxUpdateNoteView(UpdateView, AjaxResponseMixin):
             if note.slug != slug_str:
                 try:
                     Note.objects.get(slug=slug_str)
-                    context = {'msg': u"Slug already taken. ", 'slug': note.slug}
+                    context.update({
+                        'msg': u"Slug '%s' already taken. "% slug_str, 
+                        'slug': note.slug
+                    })
                     return self.ajax_response(context)
                 except Note.DoesNotExist:
                     note.slug = slug_str
+                    context.update({'url': note.get_absolute_url()})
         if post_data.has_key('title'):
             note.title = post_data['title']
         if post_data.has_key('text'):
             note.text = post_data['text']
         note.save()
-        context = {'msg': 'Update successfully!'}
+        context.update({'msg': 'Update successfully!'})
         return self.ajax_response(context)
