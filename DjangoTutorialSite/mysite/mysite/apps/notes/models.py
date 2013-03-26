@@ -9,4 +9,4 @@ class Note(models.Model):
         return u"Note(%s, %s)"% (self.title, self.slug)
 
     def get_absolute_url(self):
-        return u"/notes/%s/" %self.slug
+        return u"/notes/note/%s/" %self.slug

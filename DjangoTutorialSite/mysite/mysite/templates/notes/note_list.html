@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Note List{% endblock %}
+{% block content %}
+<div class="new">
+    <h2>Create a new note.</h2>
+    <form method="post" action="create/">
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title">
+        <label for="slug">Slug</label>
+        <input type="text" name="slug" id="slug">
+        <input type="submit" value="Create Note">
+    </form>
+</div>
+<div class="list">
+    <h2>Notes</h2>
+    <ol id="notes">
+        {% for note in notes %}
+        <li><a href="{{ note.get_absolute_url }}">{{ note.title }}</a></li>
+        {% endfor %}
+    </ol>
+</div>
+{% endblock %}
+
